@@ -36,6 +36,9 @@ namespace Proiect.Controllers
             }
 
             var room = await _context.Rooms
+                .Include(s => s.Bookings)
+                .ThenInclude(e => e.Guest)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.RoomID == id);
             if (room == null)
             {
@@ -56,13 +59,20 @@ namespace Proiect.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("RoomID,Number,Floor,Type,Price")] Room room)
+        public async Task<IActionResult> Create([Bind("Number,Floor,Type,Price")] Room room)
         {
-            if (ModelState.IsValid)
+            try
             {
-                _context.Add(room);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                if (ModelState.IsValid)
+                {
+                    _context.Add(room);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+            catch (DbUpdateException /* ex*/)
+            {
+                ModelState.AddModelError("", "Unable to save changes. " + "Try again, and if the problem persists ");
             }
             return View(room);
         }
@@ -86,40 +96,33 @@ namespace Proiect.Controllers
         // POST: Rooms/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+        [HttpPost, ActionName("Edit")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("RoomID,Number,Floor,Type,Price")] Room room)
+        public async Task<IActionResult> EditPost(int? id)
         {
-            if (id != room.RoomID)
+            if (id == null)
             {
                 return NotFound();
             }
-
-            if (ModelState.IsValid)
+            var roomToUpdate = await _context.Rooms.FirstOrDefaultAsync(s => s.RoomID == id);
+            if (await TryUpdateModelAsync<Room>(roomToUpdate, "",s => s.Number, s => s.Floor, s => s.Type, s => s.Price))
             {
                 try
                 {
-                    _context.Update(room);
                     await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (DbUpdateException /* ex */)
                 {
-                    if (!RoomExists(room.RoomID))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    ModelState.AddModelError("", "Unable to save changes. " +
+                    "Try again, and if the problem persists");
                 }
-                return RedirectToAction(nameof(Index));
             }
-            return View(room);
+            return View(roomToUpdate);
         }
 
         // GET: Rooms/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int? id, bool? saveChangesError = false)
         {
             if (id == null || _context.Rooms == null)
             {
@@ -127,10 +130,17 @@ namespace Proiect.Controllers
             }
 
             var room = await _context.Rooms
+                .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.RoomID == id);
+
             if (room == null)
             {
                 return NotFound();
+            }
+
+            if (saveChangesError.GetValueOrDefault()) 
+            { 
+                ViewData["ErrorMessage"] = "Delete failed. Try again"; 
             }
 
             return View(room);
@@ -146,13 +156,20 @@ namespace Proiect.Controllers
                 return Problem("Entity set 'LibraryContext.Rooms'  is null.");
             }
             var room = await _context.Rooms.FindAsync(id);
-            if (room != null)
+            if (room == null) 
+            { 
+                return RedirectToAction(nameof(Index));
+            }
+            try
             {
                 _context.Rooms.Remove(room);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
             }
-            
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            catch (DbUpdateException /* ex */)
+            {
+                return RedirectToAction(nameof(Delete), new { id = id, saveChangesError = true });
+            }
         }
 
         private bool RoomExists(int id)
