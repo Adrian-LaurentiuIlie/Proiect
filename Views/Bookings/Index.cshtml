@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Proiect.Models.Booking>
+﻿@model PaginatedList<Proiect.Models.Booking>
 
 @{
     ViewData["Title"] = "Index";
@@ -13,19 +13,19 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.CheckInDate)
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["CheckInDateSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">CheckInDate</a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CheckOutDate)
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["CheckOutDateSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">CheckOutDate</a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.TotalPrice)
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["TotalPriceSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">TotalPrice</a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Guest)
+                Guest Name
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Room)
+                Room Number
             </th>
             <th></th>
         </tr>
@@ -43,10 +43,11 @@
                 @Html.DisplayFor(modelItem => item.TotalPrice)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Guest.GuestID)
+                @Html.DisplayFor(modelItem => item.Guest.FirstName)
+                @Html.DisplayFor(modelItem => item.Guest.LastName)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Room.RoomID)
+                @Html.DisplayFor(modelItem => item.Room.Number)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.BookingID">Edit</a> |
@@ -57,3 +58,22 @@
 }
     </tbody>
 </table>
+
+@{
+    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+}
+<a asp-action="Index"
+   asp-route-sortOrder="@ViewData["CurrentSort"]"
+   asp-route-pageNumber="@(Model.PageIndex - 1)"
+   asp-route-currentFilter="@ViewData["CurrentFilter"]"
+   class="btn btn-default @prevDisabled">
+    Previous
+</a>
+<a asp-action="Index"
+   asp-route-sortOrder="@ViewData["CurrentSort"]"
+   asp-route-pageNumber="@(Model.PageIndex + 1)"
+   asp-route-currentFilter="@ViewData["CurrentFilter"]"
+   class="btn btn-default @nextDisabled">
+    Next
+</a>

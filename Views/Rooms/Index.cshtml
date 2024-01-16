@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Proiect.Models.Room>
+﻿@model PaginatedList<Proiect.Models.Room>
 
 @{
     ViewData["Title"] = "Index";
@@ -9,20 +9,32 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+<form asp-action="Index" method="get"> 
+    <div class="form-actions no-color"> 
+        <p> Find by type: 
+            <input type="text" name="SearchString" value="@ViewData["TypeFilter"]" /> 
+            <input type="submit" value="Search" class="btn btn-default" /> |
+            <a asp-action="Index">Back to Full List</a> 
+        </p> 
+    </div> 
+</form>
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Number)
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["NumberSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">Number</a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Floor)
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["FloorSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">Floor</a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Type)
+                Type
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Price)
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["PriceSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">Price</a>
+            </th>
+            <th>
+                Hotel Name
             </th>
             <th></th>
         </tr>
@@ -43,6 +55,9 @@
                 @Html.DisplayFor(modelItem => item.Price)
             </td>
             <td>
+                @Html.DisplayFor(modelItem => item.Hotel.Name)
+            </td>
+            <td>
                 <a asp-action="Edit" asp-route-id="@item.RoomID">Edit</a> |
                 <a asp-action="Details" asp-route-id="@item.RoomID">Details</a> |
                 <a asp-action="Delete" asp-route-id="@item.RoomID">Delete</a>
@@ -51,3 +66,22 @@
 }
     </tbody>
 </table>
+
+@{
+    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+}
+<a asp-action="Index" 
+    asp-route-sortOrder="@ViewData["CurrentSort"]" 
+    asp-route-pageNumber="@(Model.PageIndex - 1)" 
+    asp-route-currentFilter="@ViewData["CurrentFilter"]" 
+    class="btn btn-default @prevDisabled"> 
+    Previous 
+</a> 
+<a asp-action="Index" 
+    asp-route-sortOrder="@ViewData["CurrentSort"]" 
+    asp-route-pageNumber="@(Model.PageIndex + 1)" 
+    asp-route-currentFilter="@ViewData["CurrentFilter"]" 
+    class="btn btn-default @nextDisabled"> 
+    Next 
+</a>

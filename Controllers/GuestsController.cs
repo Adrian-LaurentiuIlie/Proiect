@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Proiect.Data;
 using Proiect.Models;
@@ -20,11 +21,11 @@ namespace Proiect.Controllers
         }
 
         // GET: Guests
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string sortOrder, int? pageNumber)
         {
-              return _context.Guests != null ? 
-                          View(await _context.Guests.ToListAsync()) :
-                          Problem("Entity set 'LibraryContext.Guests'  is null.");
+            ViewData["CurrentSort"] = sortOrder;
+            int pageSize = 3;
+            return View(await PaginatedList<Guest>.CreateAsync(_context.Guests.AsNoTracking(), pageNumber ?? 1, pageSize));
         }
 
         // GET: Guests/Details/5
@@ -36,6 +37,10 @@ namespace Proiect.Controllers
             }
 
             var guest = await _context.Guests
+                .Include(s => s.Bookings)
+                .ThenInclude(s => s.Room)
+                .ThenInclude(s => s.Hotel)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.GuestID == id);
             if (guest == null)
             {
@@ -56,13 +61,20 @@ namespace Proiect.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("GuestID,FirstName,LastName,Adress,BirthDate")] Guest guest)
+        public async Task<IActionResult> Create([Bind("FirstName,LastName,Adress,BirthDate")] Guest guest)
         {
-            if (ModelState.IsValid)
+            try
             {
-                _context.Add(guest);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                if (ModelState.IsValid)
+                {
+                    _context.Add(guest);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+            catch (DbUpdateException /* ex*/)
+            {
+                ModelState.AddModelError("", "Unable to save changes. " + "Try again, and if the problem persists ");
             }
             return View(guest);
         }
@@ -86,40 +98,33 @@ namespace Proiect.Controllers
         // POST: Guests/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+        [HttpPost, ActionName("Edit")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("GuestID,FirstName,LastName,Adress,BirthDate")] Guest guest)
+        public async Task<IActionResult> EditPost(int? id)
         {
-            if (id != guest.GuestID)
+            if (id == null)
             {
                 return NotFound();
             }
-
-            if (ModelState.IsValid)
+            var guestToUpdate = await _context.Guests.FirstOrDefaultAsync(s => s.GuestID == id);
+            if (await TryUpdateModelAsync<Guest>(guestToUpdate, "", s => s.FirstName, s => s.LastName, s => s.Adress, s => s.BirthDate))
             {
                 try
                 {
-                    _context.Update(guest);
                     await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (DbUpdateException /* ex */)
                 {
-                    if (!GuestExists(guest.GuestID))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    ModelState.AddModelError("", "Unable to save changes. " +
+                    "Try again, and if the problem persists");
                 }
-                return RedirectToAction(nameof(Index));
             }
-            return View(guest);
+            return View(guestToUpdate);
         }
 
         // GET: Guests/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int? id, bool? saveChangesError = false)
         {
             if (id == null || _context.Guests == null)
             {
@@ -127,10 +132,17 @@ namespace Proiect.Controllers
             }
 
             var guest = await _context.Guests
+                .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.GuestID == id);
+
             if (guest == null)
             {
                 return NotFound();
+            }
+
+            if (saveChangesError.GetValueOrDefault())
+            {
+                ViewData["ErrorMessage"] = "Delete failed. Try again";
             }
 
             return View(guest);
@@ -146,13 +158,21 @@ namespace Proiect.Controllers
                 return Problem("Entity set 'LibraryContext.Guests'  is null.");
             }
             var guest = await _context.Guests.FindAsync(id);
-            if (guest != null)
+            if (guest == null)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            try
             {
                 _context.Guests.Remove(guest);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
             }
-            
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            catch (DbUpdateException /* ex */)
+            {
+                return RedirectToAction(nameof(Delete), new { id = id, saveChangesError = true });
+            }
         }
 
         private bool GuestExists(int id)

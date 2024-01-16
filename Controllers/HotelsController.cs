@@ -20,11 +20,11 @@ namespace Proiect.Controllers
         }
 
         // GET: Hotels
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string sortOrder, int? pageNumber)
         {
-              return _context.Hotels != null ? 
-                          View(await _context.Hotels.ToListAsync()) :
-                          Problem("Entity set 'LibraryContext.Hotels'  is null.");
+            ViewData["CurrentSort"] = sortOrder;
+            int pageSize = 1;
+            return View(await PaginatedList<Hotel>.CreateAsync(_context.Hotels.AsNoTracking(), pageNumber ?? 1, pageSize));
         }
 
         // GET: Hotels/Details/5
@@ -36,6 +36,7 @@ namespace Proiect.Controllers
             }
 
             var hotel = await _context.Hotels
+                .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.HotelID == id);
             if (hotel == null)
             {
@@ -56,13 +57,20 @@ namespace Proiect.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("HotelID,Name,Adress")] Hotel hotel)
+        public async Task<IActionResult> Create([Bind("Name,Adress")] Hotel hotel)
         {
-            if (ModelState.IsValid)
+            try
             {
-                _context.Add(hotel);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                if (ModelState.IsValid)
+                {
+                    _context.Add(hotel);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+            catch (DbUpdateException /* ex*/)
+            {
+                ModelState.AddModelError("", "Unable to save changes. " + "Try again, and if the problem persists ");
             }
             return View(hotel);
         }
@@ -86,40 +94,33 @@ namespace Proiect.Controllers
         // POST: Hotels/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+        [HttpPost, ActionName("Edit")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("HotelID,Name,Adress")] Hotel hotel)
+        public async Task<IActionResult> EditPost(int? id)
         {
-            if (id != hotel.HotelID)
+            if (id == null)
             {
                 return NotFound();
             }
-
-            if (ModelState.IsValid)
+            var hotelToUpdate = await _context.Hotels.FirstOrDefaultAsync(s => s.HotelID == id);
+            if (await TryUpdateModelAsync<Hotel>(hotelToUpdate, "", s => s.Name, s => s.Adress))
             {
                 try
                 {
-                    _context.Update(hotel);
                     await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (DbUpdateException /* ex */)
                 {
-                    if (!HotelExists(hotel.HotelID))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    ModelState.AddModelError("", "Unable to save changes. " +
+                    "Try again, and if the problem persists");
                 }
-                return RedirectToAction(nameof(Index));
             }
-            return View(hotel);
+            return View(hotelToUpdate);
         }
 
         // GET: Hotels/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int? id, bool? saveChangesError = false)
         {
             if (id == null || _context.Hotels == null)
             {
@@ -127,10 +128,17 @@ namespace Proiect.Controllers
             }
 
             var hotel = await _context.Hotels
+                .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.HotelID == id);
+
             if (hotel == null)
             {
                 return NotFound();
+            }
+
+            if (saveChangesError.GetValueOrDefault())
+            {
+                ViewData["ErrorMessage"] = "Delete failed. Try again";
             }
 
             return View(hotel);
@@ -146,13 +154,21 @@ namespace Proiect.Controllers
                 return Problem("Entity set 'LibraryContext.Hotels'  is null.");
             }
             var hotel = await _context.Hotels.FindAsync(id);
-            if (hotel != null)
+            if (hotel == null)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            try
             {
                 _context.Hotels.Remove(hotel);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
             }
-            
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            catch (DbUpdateException /* ex */)
+            {
+                return RedirectToAction(nameof(Delete), new { id = id, saveChangesError = true });
+            }
         }
 
         private bool HotelExists(int id)

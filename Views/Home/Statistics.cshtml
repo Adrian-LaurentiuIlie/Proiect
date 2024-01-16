@@ -1,0 +1,26 @@
+﻿@model IEnumerable<Proiect.Models.LibraryViewModels.BookingGroup>
+@{
+    ViewData["Title"] = "Occupied Rooms Statistics";
+}
+<h2>Occupied Rooms Statistics</h2>
+<table>
+    <tr>
+        <th>
+            Booking Date
+        </th>
+        <th>
+            Occupied Rooms
+        </th>
+    </tr>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.BookingDate)
+            </td>
+            <td>
+                @item.RoomCount
+            </td>
+        </tr>
+    }
+</table>

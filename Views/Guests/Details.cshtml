@@ -34,6 +34,27 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.BirthDate)
         </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Bookings)
+        </dt>
+        <dd class="col-sm-10">
+            <table class="table">
+                <tr>
+                    <th>HotelName</th>
+                    <th>RoomNumber</th>
+                    <th>CheckInDate</th>
+                    <th>CheckOutDate</th>
+                </tr> @foreach (var item in Model.Bookings)
+                {
+                    <tr>
+                        <td> @Html.DisplayFor(modelItem => item.Room.Hotel.Name) </td>
+                        <td> @Html.DisplayFor(modelItem => item.Room.Number) </td>
+                        <td> @Html.DisplayFor(modelItem => item.CheckInDate) </td>
+                        <td> @Html.DisplayFor(modelItem => item.CheckOutDate) </td>
+                    </tr>
+                }
+            </table>
+        </dd>
     </dl>
 </div>
 <div>

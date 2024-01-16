@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Proiect.Data;
 using Proiect.Models;
+using static System.Reflection.Metadata.BlobBuilder;
 
 namespace Proiect.Controllers
 {
@@ -20,11 +21,38 @@ namespace Proiect.Controllers
         }
 
         // GET: Rooms
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string sortOrder, string currentFilter, string searchString, int? pageNumber)
         {
-              return _context.Rooms != null ? 
-                          View(await _context.Rooms.ToListAsync()) :
-                          Problem("Entity set 'LibraryContext.Rooms'  is null.");
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["NumberSortParm"] = String.IsNullOrEmpty(sortOrder) ? "number_desc" : "";
+            ViewData["FloorSortParm"] = sortOrder == "Floor" ? "floor_desc" : "Floor";
+            ViewData["PriceSortParm"] = sortOrder == "Price" ? "price_desc" : "Price";
+            if (searchString != null) 
+            { 
+                pageNumber = 1; 
+            } else { 
+                searchString = currentFilter; 
+            }
+            ViewData["TypeFilter"] = searchString;
+            var rooms = from r in _context.Rooms
+                        select r;
+            if (!String.IsNullOrEmpty(searchString)) 
+            { 
+                rooms = rooms.Where(r => r.Type.Contains(searchString)); 
+            }
+            switch (sortOrder)
+            {
+                case "number_desc": rooms = rooms.OrderByDescending(r => r.Number); break;
+                case "Floor": rooms = rooms.OrderBy(r => r.Floor); break;
+                case "floor_desc": rooms = rooms.OrderByDescending(r => r.Floor); break;
+                case "Price": rooms = rooms.OrderBy(r => r.Price); break;
+                case "price_desc": rooms = rooms.OrderByDescending(r => r.Price); break;
+                default:
+                    rooms = rooms.OrderBy(r => r.Number);
+                    break;
+            }
+            int pageSize = 3;
+            return View(await PaginatedList<Room>.CreateAsync(rooms.Include(s => s.Hotel).AsNoTracking(), pageNumber ?? 1, pageSize));
         }
 
         // GET: Rooms/Details/5
@@ -36,6 +64,7 @@ namespace Proiect.Controllers
             }
 
             var room = await _context.Rooms
+                .Include(s => s.Hotel)
                 .Include(s => s.Bookings)
                 .ThenInclude(e => e.Guest)
                 .AsNoTracking()
@@ -51,6 +80,8 @@ namespace Proiect.Controllers
         // GET: Rooms/Create
         public IActionResult Create()
         {
+            var hotelList = _context.Hotels.Select(x => new { x.HotelID, x.Name});
+            ViewData["HotelID"] = new SelectList(hotelList, "HotelID", "Name");
             return View();
         }
 
@@ -59,7 +90,7 @@ namespace Proiect.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Number,Floor,Type,Price")] Room room)
+        public async Task<IActionResult> Create([Bind("Number,Floor,Type,Price,HotelID")] Room room)
         {
             try
             {
@@ -74,6 +105,8 @@ namespace Proiect.Controllers
             {
                 ModelState.AddModelError("", "Unable to save changes. " + "Try again, and if the problem persists ");
             }
+
+            ViewData["HotelID"] = new SelectList(_context.Hotels, "HotelID", "HotelID", room.HotelID);
             return View(room);
         }
 
@@ -90,6 +123,8 @@ namespace Proiect.Controllers
             {
                 return NotFound();
             }
+            var hotelList = _context.Hotels.Select(x => new { x.HotelID, x.Name });
+            ViewData["HotelID"] = new SelectList(hotelList, "HotelID", "Name", room.HotelID);
             return View(room);
         }
 
@@ -105,7 +140,7 @@ namespace Proiect.Controllers
                 return NotFound();
             }
             var roomToUpdate = await _context.Rooms.FirstOrDefaultAsync(s => s.RoomID == id);
-            if (await TryUpdateModelAsync<Room>(roomToUpdate, "",s => s.Number, s => s.Floor, s => s.Type, s => s.Price))
+            if (await TryUpdateModelAsync<Room>(roomToUpdate, "",s => s.Number, s => s.Floor, s => s.Type, s => s.Price, s => s.HotelID))
             {
                 try
                 {
@@ -142,7 +177,8 @@ namespace Proiect.Controllers
             { 
                 ViewData["ErrorMessage"] = "Delete failed. Try again"; 
             }
-
+            var hotelList = _context.Hotels.Select(x => new { x.HotelID, x.Name });
+            ViewData["HotelID"] = new SelectList(hotelList, "HotelID", "Name", room.HotelID);
             return View(room);
         }
 

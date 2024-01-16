@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Proiect.Data;
 
@@ -11,9 +12,11 @@ using Proiect.Data;
 namespace Proiect.Migrations
 {
     [DbContext(typeof(LibraryContext))]
-    partial class LibraryContextModelSnapshot : ModelSnapshot
+    [Migration("20240115124947_InitialCreate2")]
+    partial class InitialCreate2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -134,50 +137,6 @@ namespace Proiect.Migrations
                     b.ToTable("Room", (string)null);
                 });
 
-            modelBuilder.Entity("Proiect.Models.RoomStaff", b =>
-                {
-                    b.Property<int>("RoomID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("StaffID")
-                        .HasColumnType("int");
-
-                    b.HasKey("RoomID", "StaffID");
-
-                    b.HasIndex("StaffID");
-
-                    b.ToTable("RoomStaff", (string)null);
-                });
-
-            modelBuilder.Entity("Proiect.Models.Staff", b =>
-                {
-                    b.Property<int>("StaffID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StaffID"));
-
-                    b.Property<string>("StaffAdress")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("StaffJob")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("StaffName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("StaffPhoneNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("StaffID");
-
-                    b.ToTable("Staff", (string)null);
-                });
-
             modelBuilder.Entity("Proiect.Models.Booking", b =>
                 {
                     b.HasOne("Proiect.Models.Guest", "Guest")
@@ -206,25 +165,6 @@ namespace Proiect.Migrations
                     b.Navigation("Hotel");
                 });
 
-            modelBuilder.Entity("Proiect.Models.RoomStaff", b =>
-                {
-                    b.HasOne("Proiect.Models.Room", "Room")
-                        .WithMany("RoomStaffs")
-                        .HasForeignKey("RoomID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Proiect.Models.Staff", "Staff")
-                        .WithMany("RoomStaffs")
-                        .HasForeignKey("StaffID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Room");
-
-                    b.Navigation("Staff");
-                });
-
             modelBuilder.Entity("Proiect.Models.Guest", b =>
                 {
                     b.Navigation("Bookings");
@@ -238,13 +178,6 @@ namespace Proiect.Migrations
             modelBuilder.Entity("Proiect.Models.Room", b =>
                 {
                     b.Navigation("Bookings");
-
-                    b.Navigation("RoomStaffs");
-                });
-
-            modelBuilder.Entity("Proiect.Models.Staff", b =>
-                {
-                    b.Navigation("RoomStaffs");
                 });
 #pragma warning restore 612, 618
         }

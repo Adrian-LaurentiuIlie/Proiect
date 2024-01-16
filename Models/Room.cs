@@ -1,9 +1,12 @@
-﻿namespace Proiect.Models
+﻿using System.ComponentModel;
+
+namespace Proiect.Models
 {
     public class Room
     {
         public int RoomID { get; set; }
-        //public int? HotelID {  get; set; }
+        public int? HotelID {  get; set; }
+        [DisplayName("Room Number")]
         public int Number {  get; set; }
         public int Floor {  get; set; }
         public string Type {  get; set; }
@@ -11,5 +14,6 @@
 
         public Hotel? Hotel { get; set; }
         public ICollection<Booking>? Bookings { get; set; }
+        public ICollection<RoomStaff>? RoomStaffs { get; set; }
     }
 }

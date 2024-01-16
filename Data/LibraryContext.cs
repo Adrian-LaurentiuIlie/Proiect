@@ -11,6 +11,8 @@ namespace Proiect.Data
         public DbSet<Booking> Bookings { get; set; }
         public DbSet<Room> Rooms { get; set; }
         public DbSet<Hotel> Hotels { get; set; }
+        public DbSet<Staff> Staffs { get; set; }
+        public DbSet<RoomStaff> RoomStaffs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -18,6 +20,10 @@ namespace Proiect.Data
             modelBuilder.Entity<Booking>().ToTable("Booking");
             modelBuilder.Entity<Room>().ToTable("Room");
             modelBuilder.Entity<Hotel>().ToTable("Hotel");
+            modelBuilder.Entity<Staff>().ToTable("Staff");
+            modelBuilder.Entity<RoomStaff>().ToTable("RoomStaff");
+
+            modelBuilder.Entity<RoomStaff>().HasKey(c => new { c.RoomID, c.StaffID });
         }
     }
 }

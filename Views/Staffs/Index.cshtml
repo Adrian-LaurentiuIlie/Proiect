@@ -1,0 +1,136 @@
+﻿@model Proiect.Models.LibraryViewModels.StaffIndexData
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                StaffName
+            </th>
+            <th>
+                StaffJob
+            </th>
+            <th>
+                StaffAdress
+            </th>
+            <th>
+                StaffPhoneNumber
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model.Staffs) 
+    {
+        string selectedRow = "";
+            if (item.StaffID == (int?)ViewData["StaffID"])
+                {
+                    selectedRow = "success";
+                }
+                <tr class="@selectedRow">
+                <td>
+                    @Html.DisplayFor(modelItem => item.StaffName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StaffJob)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StaffAdress)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StaffPhoneNumber)
+                </td>
+            <td>
+                    <a asp-action="Index" asp-route-id="@item.StaffID">Select</a> |
+                <a asp-action="Edit" asp-route-id="@item.StaffID">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.StaffID">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.StaffID">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+
+@if (Model.Rooms != null)
+{
+    <h3>Rooms Assigned For Selected Staff</h3>
+    <table class="table">
+        <tr>
+            <th></th>
+            <th>HotelName</th>
+            <th>RoomNumber</th>
+            <th>Floor</th>
+            <th>Type</th>
+        </tr>
+        @foreach (var item in Model.Rooms)
+        {
+            string selectedRow = "";
+            if (item.RoomID == (int?)ViewData["RoomID"])
+            {
+                selectedRow = "success";
+            }
+            <tr class="@selectedRow">
+                <td>
+                    @Html.ActionLink("Select", "Index", new { roomID = item.RoomID })
+                </td>
+                <td>
+                    @item.Hotel.Name
+                </td>
+                <td>
+                    @item.Number
+                </td>
+                <td>
+                    @item.Floor
+                </td>
+                <td>
+                    @item.Type
+                </td>
+
+            </tr>
+        }
+    </table>
+}
+
+@if (Model.Bookings != null)
+{
+    <h3>Bookings Assigned For Selected Room</h3>
+    <table class="table">
+        <tr>
+            <th></th>
+            <th>GuestName</th>
+            <th>CheckInDate</th>
+            <th>CheckOutDate</th>
+        </tr>
+        @foreach (var item in Model.Bookings)
+        {
+            string selectedRow = "";
+            if (item.BookingID == (int?)ViewData["BookingID"])
+            {
+                selectedRow = "success";
+            }
+            <tr class="@selectedRow">
+                <td>
+                    @Html.ActionLink("Select", "Index", new { bookingID = item.BookingID })
+                </td>
+                <td>
+                    @item.Guest.FirstName
+                    @item.Guest.LastName
+                </td>
+                <td>
+                    @item.CheckInDate
+                </td>
+                <td>
+                    @item.CheckOutDate
+                </td>
+
+            </tr>
+        }
+    </table>
+}

@@ -1,4 +1,6 @@
-﻿namespace Proiect.Models
+﻿using System.ComponentModel;
+
+namespace Proiect.Models
 {
     public class Guest
     {
