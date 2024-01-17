@@ -37,10 +37,10 @@ namespace Proiect.Data
                 context.SaveChanges();
 
                 context.Bookings.AddRange(
-                   new Booking { GuestID = 5, RoomID = 7, CheckInDate = DateTime.Parse("2024-01-07"), CheckOutDate = DateTime.Parse("2024-01-10"), TotalPrice = Decimal.Parse("1500") },
-                   new Booking { GuestID = 8, RoomID = 5, CheckInDate = DateTime.Parse("2024-03-12"), CheckOutDate = DateTime.Parse("2024-03-17"), TotalPrice = Decimal.Parse("1000") },
-                   new Booking { GuestID = 7, RoomID = 8, CheckInDate = DateTime.Parse("2024-05-19"), CheckOutDate = DateTime.Parse("2024-05-21"), TotalPrice = Decimal.Parse("800") },
-                   new Booking { GuestID = 6, RoomID = 6, CheckInDate = DateTime.Parse("2024-02-22"), CheckOutDate = DateTime.Parse("2024-02-25"), TotalPrice = Decimal.Parse("900") }
+                   new Booking { GuestID = 1, RoomID = 3, CheckInDate = DateTime.Parse("2024-01-07"), CheckOutDate = DateTime.Parse("2024-01-10"), TotalPrice = Decimal.Parse("1500") },
+                   new Booking { GuestID = 4, RoomID = 1, CheckInDate = DateTime.Parse("2024-03-12"), CheckOutDate = DateTime.Parse("2024-03-17"), TotalPrice = Decimal.Parse("1000") },
+                   new Booking { GuestID = 3, RoomID = 4, CheckInDate = DateTime.Parse("2024-05-19"), CheckOutDate = DateTime.Parse("2024-05-21"), TotalPrice = Decimal.Parse("800") },
+                   new Booking { GuestID = 2, RoomID = 2, CheckInDate = DateTime.Parse("2024-02-22"), CheckOutDate = DateTime.Parse("2024-02-25"), TotalPrice = Decimal.Parse("900") }
                    );
                 context.SaveChanges();
 
