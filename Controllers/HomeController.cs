@@ -2,7 +2,7 @@
 using Proiect.Models;
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
-using LibraryModel.Data;
+using Proiect.Data;
 using LibraryModel.Models.LibraryViewModels;
 
 namespace Proiect.Controllers

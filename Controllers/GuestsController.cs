@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using LibraryModel.Data;
+using Proiect.Data;
 using LibraryModel.Models;
 
 namespace Proiect.Controllers

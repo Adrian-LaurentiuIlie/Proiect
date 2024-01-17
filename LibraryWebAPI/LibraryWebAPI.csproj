@@ -20,10 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\LibraryModel\LibraryModel.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Controllers\" />
+    <ProjectReference Include="..\Proiect.csproj" />
   </ItemGroup>
 
 </Project>

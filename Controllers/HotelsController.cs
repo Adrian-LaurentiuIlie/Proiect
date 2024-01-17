@@ -5,14 +5,18 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using LibraryModel.Data;
+using Proiect.Data;
 using LibraryModel.Models;
+using System.Net.Http;
+using System.Text;
+using Newtonsoft.Json;
 
 namespace Proiect.Controllers
 {
     public class HotelsController : Controller
     {
         private readonly LibraryContext _context;
+        private string _baseUrl = "http://localhost:5283/api/Hotels";
 
         public HotelsController(LibraryContext context)
         {
@@ -20,155 +24,134 @@ namespace Proiect.Controllers
         }
 
         // GET: Hotels
-        public async Task<IActionResult> Index(string sortOrder, int? pageNumber)
+        public async Task<ActionResult> Index()
         {
-            ViewData["CurrentSort"] = sortOrder;
-            int pageSize = 1;
-            return View(await PaginatedList<Hotel>.CreateAsync(_context.Hotels.AsNoTracking(), pageNumber ?? 1, pageSize));
+            var client = new HttpClient();
+            var response = await client.GetAsync(_baseUrl);
+            if (response.IsSuccessStatusCode)
+            {
+                var hotel = JsonConvert.DeserializeObject<List<Hotel>>(await response.Content. ReadAsStringAsync());
+                return View(hotel);
+            }
+            return NotFound();
         }
 
-        // GET: Hotels/Details/5
-        public async Task<IActionResult> Details(int? id)
+        // GET: Inventory/Details/5
+        public async Task<ActionResult> Details(int? id)
         {
-            if (id == null || _context.Hotels == null)
+            if (id == null)
             {
-                return NotFound();
+                return new BadRequestResult();
             }
-
-            var hotel = await _context.Hotels
-                .AsNoTracking()
-                .FirstOrDefaultAsync(m => m.HotelID == id);
-            if (hotel == null)
+            var client = new HttpClient();
+            var response = await client.GetAsync($"{_baseUrl}/{id.Value}");
+            if (response.IsSuccessStatusCode)
             {
-                return NotFound();
+                var hotel = JsonConvert.DeserializeObject<Hotel>(
+                await response.Content.ReadAsStringAsync());
+                return View(hotel);
             }
-
-            return View(hotel);
+            return NotFound();
         }
 
-        // GET: Hotels/Create
+        // GET: Customers/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Hotels/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,Adress")] Hotel hotel)
+        public async Task<ActionResult> Create([Bind("HotelID,Name,Adress")] Hotel hotel)
         {
+            if (!ModelState.IsValid) return View(hotel);
             try
             {
-                if (ModelState.IsValid)
+                var client = new HttpClient();
+                string json = JsonConvert.SerializeObject(hotel);
+                var response = await client.PostAsync(_baseUrl,
+                new StringContent(json, Encoding.UTF8, "application/json"));
+                if (response.IsSuccessStatusCode)
                 {
-                    _context.Add(hotel);
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction("Index");
                 }
             }
-            catch (DbUpdateException /* ex*/)
+            catch (Exception ex)
             {
-                ModelState.AddModelError("", "Unable to save changes. " + "Try again, and if the problem persists ");
+                ModelState.AddModelError(string.Empty, $"Unable to create record: {ex.Message}");
             }
             return View(hotel);
         }
 
-        // GET: Hotels/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null || _context.Hotels == null)
-            {
-                return NotFound();
-            }
-
-            var hotel = await _context.Hotels.FindAsync(id);
-            if (hotel == null)
-            {
-                return NotFound();
-            }
-            return View(hotel);
-        }
-
-        // POST: Hotels/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost, ActionName("Edit")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditPost(int? id)
+        public async Task<ActionResult> Edit(int? id)
         {
             if (id == null)
             {
-                return NotFound();
+                return new BadRequestResult();
             }
-            var hotelToUpdate = await _context.Hotels.FirstOrDefaultAsync(s => s.HotelID == id);
-            if (await TryUpdateModelAsync<Hotel>(hotelToUpdate, "", s => s.Name, s => s.Adress))
+            var client = new HttpClient();
+            var response = await client.GetAsync($"{_baseUrl}/{id.Value}");
+            if (response.IsSuccessStatusCode)
             {
-                try
-                {
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
-                }
-                catch (DbUpdateException /* ex */)
-                {
-                    ModelState.AddModelError("", "Unable to save changes. " +
-                    "Try again, and if the problem persists");
-                }
+                var hotel = JsonConvert.DeserializeObject<Hotel>(
+                await response.Content.ReadAsStringAsync());
+                return View(hotel);
             }
-            return View(hotelToUpdate);
+            return new NotFoundResult();
         }
 
-        // GET: Hotels/Delete/5
-        public async Task<IActionResult> Delete(int? id, bool? saveChangesError = false)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> Edit([Bind("HotelID,Name,Adress,")] Hotel hotel)
         {
-            if (id == null || _context.Hotels == null)
+            if (!ModelState.IsValid) return View(hotel);
+            var client = new HttpClient();
+            string json = JsonConvert.SerializeObject(hotel);
+            var response = await client.PutAsync($"{_baseUrl}/{hotel.HotelID}",
+            new StringContent(json, Encoding.UTF8, "application/json"));
+            if (response.IsSuccessStatusCode)
             {
-                return NotFound();
+                return RedirectToAction("Index");
             }
-
-            var hotel = await _context.Hotels
-                .AsNoTracking()
-                .FirstOrDefaultAsync(m => m.HotelID == id);
-
-            if (hotel == null)
-            {
-                return NotFound();
-            }
-
-            if (saveChangesError.GetValueOrDefault())
-            {
-                ViewData["ErrorMessage"] = "Delete failed. Try again";
-            }
-
             return View(hotel);
         }
-
-        // POST: Hotels/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<ActionResult> Delete(int? id)
         {
-            if (_context.Hotels == null)
+            if (id == null)
             {
-                return Problem("Entity set 'LibraryContext.Hotels'  is null.");
+                return new BadRequestResult();
             }
-            var hotel = await _context.Hotels.FindAsync(id);
-            if (hotel == null)
+            var client = new HttpClient();
+            var response = await client.GetAsync($"{_baseUrl}/{id.Value}");
+            if (response.IsSuccessStatusCode)
             {
-                return RedirectToAction(nameof(Index));
+                var hotel = JsonConvert.DeserializeObject<Hotel>(await response.Content.ReadAsStringAsync());
+                return View(hotel);
             }
+            return new NotFoundResult();
+        }
 
+        // POST: Customers/Delete/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> Delete([Bind("HotelID")] Hotel hotel)
+        {
             try
             {
-                _context.Hotels.Remove(hotel);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                var client = new HttpClient();
+                HttpRequestMessage request =
+                new HttpRequestMessage(HttpMethod.Delete, $"{_baseUrl}/{hotel.HotelID}")
+                {
+                    Content = new StringContent(JsonConvert.SerializeObject(hotel), Encoding.UTF8, "application/json")
+                };
+                var response = await client.SendAsync(request);
+                return RedirectToAction("Index");
             }
-            catch (DbUpdateException /* ex */)
+            catch (Exception ex)
             {
-                return RedirectToAction(nameof(Delete), new { id = id, saveChangesError = true });
+                ModelState.AddModelError(string.Empty, $"Unable to delete record: {ex.Message}");
             }
+            return View(hotel);
         }
 
         private bool HotelExists(int id)
