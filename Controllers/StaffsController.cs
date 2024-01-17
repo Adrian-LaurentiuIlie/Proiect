@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Proiect.Data;
-using Proiect.Models;
-using Proiect.Models.LibraryViewModels;
+using LibraryModel.Data;
+using LibraryModel.Models;
+using LibraryModel.Models.LibraryViewModels;
 
 namespace Proiect.Controllers
 {

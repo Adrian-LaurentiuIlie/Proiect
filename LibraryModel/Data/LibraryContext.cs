@@ -1,7 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Proiect.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection.Emit;
+using System.Text;
+using System.Threading.Tasks;
+using LibraryModel.Models;
 
-namespace Proiect.Data
+namespace LibraryModel.Data
 {
     public class LibraryContext : DbContext
     {
@@ -22,7 +28,6 @@ namespace Proiect.Data
             modelBuilder.Entity<Hotel>().ToTable("Hotel");
             modelBuilder.Entity<Staff>().ToTable("Staff");
             modelBuilder.Entity<RoomStaff>().ToTable("RoomStaff");
-
             modelBuilder.Entity<RoomStaff>().HasKey(c => new { c.RoomID, c.StaffID });
         }
     }

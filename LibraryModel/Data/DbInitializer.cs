@@ -1,10 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Proiect.Models;
+using Microsoft.Extensions.DependencyInjection;
+using LibraryModel.Models;
 using System;
-using System.Security.Policy;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Proiect.Data
+namespace LibraryModel.Data
 {
     public static class DbInitializer
     {

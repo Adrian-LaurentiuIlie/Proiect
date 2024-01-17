@@ -7,17 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="LibraryModel\**" />
-    <Compile Remove="LibraryWebAPI\**" />
-    <Content Remove="LibraryModel\**" />
-    <Content Remove="LibraryWebAPI\**" />
-    <EmbeddedResource Remove="LibraryModel\**" />
-    <EmbeddedResource Remove="LibraryWebAPI\**" />
-    <None Remove="LibraryModel\**" />
-    <None Remove="LibraryWebAPI\**" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.12" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.15" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.15" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.12">
@@ -25,10 +15,15 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="7.0.11" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="LibraryModel\LibraryModel.csproj" />
+    <ProjectReference Include="..\LibraryModel\LibraryModel.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Controllers\" />
   </ItemGroup>
 
 </Project>

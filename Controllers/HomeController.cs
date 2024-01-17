@@ -2,8 +2,8 @@
 using Proiect.Models;
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
-using Proiect.Data;
-using Proiect.Models.LibraryViewModels;
+using LibraryModel.Data;
+using LibraryModel.Models.LibraryViewModels;
 
 namespace Proiect.Controllers
 {

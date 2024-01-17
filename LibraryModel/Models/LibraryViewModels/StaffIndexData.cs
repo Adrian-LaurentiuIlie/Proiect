@@ -1,6 +1,10 @@
-﻿using System.Security.Policy;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Proiect.Models.LibraryViewModels
+namespace LibraryModel.Models.LibraryViewModels
 {
     public class StaffIndexData
     {

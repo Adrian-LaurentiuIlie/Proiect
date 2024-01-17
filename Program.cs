@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using Proiect.Data;
+using LibraryModel.Data;
 using Proiect.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
