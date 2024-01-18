@@ -8,9 +8,11 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Proiect.Data;
 using LibraryModel.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Proiect.Controllers
 {
+    [Authorize(Policy = "Admin")]
     public class GuestsController : Controller
     {
         private readonly LibraryContext _context;

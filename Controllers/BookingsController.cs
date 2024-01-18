@@ -7,9 +7,12 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Proiect.Data;
 using LibraryModel.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Proiect.Controllers
 {
+    [Authorize(Policy = "Admin")]
+    [Authorize(Policy = "SalesManager")]
     public class BookingsController : Controller
     {
         private readonly LibraryContext _context;

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Proiect.Data;
 using LibraryModel.Models.LibraryViewModels;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Proiect.Controllers
 {
@@ -25,7 +26,8 @@ namespace Proiect.Controllers
         {
             return View();
         }
-
+        //[Authorize(Policy = "Admin")]
+        [Authorize(Policy = "Analist")]
         public async Task<ActionResult> Statistics()
         {
             IQueryable<BookingGroup> data =

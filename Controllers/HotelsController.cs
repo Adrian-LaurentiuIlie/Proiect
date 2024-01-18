@@ -10,9 +10,12 @@ using LibraryModel.Models;
 using System.Net.Http;
 using System.Text;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Proiect.Controllers
 {
+    //[Authorize(Policy = "Admin")]
+    [Authorize(Policy = "Employee")]
     public class HotelsController : Controller
     {
         private readonly LibraryContext _context;
@@ -24,6 +27,7 @@ namespace Proiect.Controllers
         }
 
         // GET: Hotels
+        [AllowAnonymous]
         public async Task<ActionResult> Index()
         {
             var client = new HttpClient();

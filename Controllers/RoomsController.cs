@@ -8,9 +8,12 @@ using Microsoft.EntityFrameworkCore;
 using Proiect.Data;
 using LibraryModel.Models;
 using static System.Reflection.Metadata.BlobBuilder;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Proiect.Controllers
 {
+    //[Authorize(Policy = "Admin")]
+    [Authorize(Policy = "Employee")]
     public class RoomsController : Controller
     {
         private readonly LibraryContext _context;
@@ -21,6 +24,7 @@ namespace Proiect.Controllers
         }
 
         // GET: Rooms
+        [AllowAnonymous]
         public async Task<IActionResult> Index(string sortOrder, string currentFilter, string searchString, int? pageNumber)
         {
             ViewData["CurrentSort"] = sortOrder;

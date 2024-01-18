@@ -9,9 +9,12 @@ using Microsoft.EntityFrameworkCore;
 using Proiect.Data;
 using LibraryModel.Models;
 using LibraryModel.Models.LibraryViewModels;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Proiect.Controllers
 {
+    //[Authorize(Policy = "Admin")]
+    [Authorize(Policy = "OnlySales")]
     public class StaffsController : Controller
     {
         private readonly LibraryContext _context;
@@ -22,6 +25,7 @@ namespace Proiect.Controllers
         }
 
         // GET: Staffs
+        [AllowAnonymous]
         public async Task<IActionResult> Index(int? id, int? roomID)
         {
             var viewModel = new StaffIndexData();
