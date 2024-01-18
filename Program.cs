@@ -60,6 +60,15 @@ builder.Services.AddAuthorization(opts =>
         });
 });
 
+builder.Services.AddAuthorization(opts =>
+{
+    opts.AddPolicy("Employee",
+        policy => {
+            policy.RequireRole("Employee");
+            policy.RequireClaim("Department", "Sales");
+        });
+});
+
 builder.Services.AddAuthorization(opts => 
 { 
     opts.AddPolicy("OnlySales",

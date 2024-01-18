@@ -13,7 +13,6 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Proiect.Controllers
 {
-    //[Authorize(Policy = "Admin")]
     [Authorize(Policy = "OnlySales")]
     public class StaffsController : Controller
     {

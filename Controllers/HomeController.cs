@@ -26,7 +26,7 @@ namespace Proiect.Controllers
         {
             return View();
         }
-        //[Authorize(Policy = "Admin")]
+
         [Authorize(Policy = "Analist")]
         public async Task<ActionResult> Statistics()
         {

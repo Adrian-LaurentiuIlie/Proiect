@@ -11,7 +11,6 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Proiect.Controllers
 {
-    [Authorize(Policy = "Admin")]
     [Authorize(Policy = "SalesManager")]
     public class BookingsController : Controller
     {
