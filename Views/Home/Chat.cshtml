@@ -1,10 +1,17 @@
-﻿@{
+﻿@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityUser> UserManager
+
+@{
     ViewData["Title"] = "Forum";
 }
 <h1>@ViewData["Title"]</h1>
 <p>Use this Forum to chat with other users</p>
 <div class="container">
     <div class="row">&nbsp;</div>
+    <div class="row">
+        <div class="col-2">User</div>
+        <div class="col-4">@UserManager.GetUserName(User)</div>
+    </div>
     <div class="row">
         <div class="col-2">Message</div>
         <div class="col-4"><input type="text" id="messageInput" /></div>

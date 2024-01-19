@@ -55,7 +55,7 @@ namespace Proiect.Controllers
                     rooms = rooms.OrderBy(r => r.Number);
                     break;
             }
-            int pageSize = 3;
+            int pageSize = 5;
             return View(await PaginatedList<Room>.CreateAsync(rooms.Include(s => s.Hotel).AsNoTracking(), pageNumber ?? 1, pageSize));
         }
 

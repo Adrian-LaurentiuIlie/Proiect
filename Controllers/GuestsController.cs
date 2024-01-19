@@ -26,7 +26,7 @@ namespace Proiect.Controllers
         public async Task<IActionResult> Index(string sortOrder, int? pageNumber)
         {
             ViewData["CurrentSort"] = sortOrder;
-            int pageSize = 3;
+            int pageSize = 6;
             return View(await PaginatedList<Guest>.CreateAsync(_context.Guests.AsNoTracking(), pageNumber ?? 1, pageSize));
         }
 
